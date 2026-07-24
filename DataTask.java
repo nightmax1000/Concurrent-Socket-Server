@@ -4,11 +4,11 @@ import java.io.*;
 public class DataTask implements Runnable{
 
     private int numDone = 0;
-    private DataInputStream in;
-    private DataOutputStream out;
-    private DataInputStream serverIn;
-    private String command;
-    private String message;
+    private final DataInputStream in;
+    private final DataOutputStream out;
+    private final DataInputStream serverIn;
+    private final String command;
+    private final String message;
     private String result;
     private String individualTime;
     private String total;
@@ -36,6 +36,7 @@ public class DataTask implements Runnable{
 
     }
 
+    @Override
     public synchronized void run(){
 
         try{

@@ -9,9 +9,11 @@ public class Server{
     private ServerSocket serverSocket = null;
     private DataInputStream in = null;
     private DataOutputStream out = null;
+    private String message = null;
+    private String command = null;
 
-    @SuppressWarnings("deprecation")
-    private void sendData(String message, String command, DataInputStream in, DataOutputStream out){
+    @SuppressWarnings({"deprecation", "ConvertToTryWithResources"})
+    private void sendData(String command, DataInputStream in, DataOutputStream out){
 
         //System.out.println("Testing Case: " + message);
 
@@ -50,7 +52,7 @@ public class Server{
                 result = result.concat(s);
             }
 
-            if(result != ""){
+            if(!result.equals("")){
                 System.out.println("Command Error: " + result);
                 System.out.println("Client request failed.");
             }
@@ -66,27 +68,9 @@ public class Server{
 
     }
 
-    public Server(int port){
+    private synchronized void verifyRequest(String message, String command, DataInputStream in, DataOutputStream out){
 
-        try{
-
-            System.out.println("Initializing server");
-
-            serverSocket = new ServerSocket(port);
-            System.out.println("Server started" );
-
-            System.out.println("Waiting for the client...");
-
-            socket = serverSocket.accept();
-            System.out.println("Client accepted");
-
-            in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
-            out = new DataOutputStream(socket.getOutputStream());
-
-            String message = "";
-            String command = "";
-
-            while(!message.equals("7")){
+                    while(!message.equals("7")){
 
                 try{
                     message = in.readUTF();
@@ -94,22 +78,22 @@ public class Server{
                     switch(message){
 
                         case "1":
-                            sendData(message, command, in, out);
+                            sendData(command, in, out);
                             break;
                         case "2":
-                            sendData(message, command, in, out);
+                            sendData(command, in, out);
                             break;
                         case "3":
-                            sendData(message, command, in, out);
+                            sendData(command, in, out);
                             break;
                         case "4":
-                            sendData(message, command, in, out);
+                            sendData(command, in, out);
                             break;
                         case "5":
-                            sendData(message, command, in, out);
+                            sendData(command, in, out);
                             break;
                         case "6":
-                            sendData(message, command, in, out);
+                            sendData(command, in, out);
                             break;
                         case "7":
                             continue;
@@ -120,17 +104,37 @@ public class Server{
                 }
                 catch(IOException e){
                     message = "7";
-                    continue;
                 }
                 
             }
 
-            System.out.println("Ending Client Connection");
+    }
 
+    public Server(int port){
+
+        try{
+
+            //After a successful initialization, this completes the server connection
+            this.serverSocket = new ServerSocket(port);
+            this.socket = serverSocket.accept();
+            this.in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
+            this.out = new DataOutputStream(socket.getOutputStream());
+
+            //A message to the server console to track each instance
+            System.out.println("A new server instance was created on port: " + port);
+
+            //The message is the client choice, the command is the Linux/Unix command desired
+            this.message = "";
+            this.command = "";
+
+            //This method gathers the client command selection, and verifies that the request can be handled
+            verifyRequest(this.message, this.command, this.in, this.out);
+
+            //After the server has completed the command, end connection
+            System.out.println("Ending client connection from port: " + port);
             socket.close();
             in.close();
             out.close();
-
 
         }
         catch(IOException e){
@@ -139,6 +143,13 @@ public class Server{
 
         }
 
+    }
+
+    public static Server initialize(int port){
+
+        Server server = new Server(port);
+
+        return server;
 
     }
 
@@ -147,7 +158,7 @@ public class Server{
 
         Scanner userInput = new Scanner(System.in);
         boolean valid = false;
-        int port = -1;
+        int port;
 
         
 
@@ -162,7 +173,7 @@ public class Server{
                 System.out.println("Connecting To Port: " + port);
 
                 @SuppressWarnings("unused")
-                Server server = new Server(port);
+                Server server = Server.initialize(port); //Sets up the server connection
 
                 valid = true;
 

@@ -171,7 +171,7 @@ public class Client {
 
         // This method starts the number of threads indicated by numRequests,
         // then each thread calls to the server based on the operation chosen by the client. 
-        ArrayList<Thread> threads = new ArrayList<Thread>();
+        ArrayList<Thread> threads = new ArrayList<>();
         DataTask runnable = new DataTask(message, command, in, serverIn, out);
 
   
