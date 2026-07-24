@@ -169,7 +169,7 @@ public class Client {
 
     static void getData(String message, String command, DataInputStream in, DataInputStream serverIn, DataOutputStream out, int numRequests){
 
-        // FIX ME: This method is meant to start the number of threads indicated by numRequests,
+        // This method starts the number of threads indicated by numRequests,
         // then each thread calls to the server based on the operation chosen by the client. 
         ArrayList<Thread> threads = new ArrayList<Thread>();
         DataTask runnable = new DataTask(message, command, in, serverIn, out);
@@ -197,7 +197,6 @@ public class Client {
         int average = Integer.parseInt(runnable.getTotal())/numRequests;
         System.out.println("The average turnaround time was: " + average + "ms\n");
         
-        return;
 
     }    
 
