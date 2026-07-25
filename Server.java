@@ -3,14 +3,66 @@ import java.net.*;
 import java.util.Scanner;
 //import java.lang.*;
 
+@SuppressWarnings("unused")
 public class Server{
 
     private Socket socket = null;
     private ServerSocket serverSocket = null;
     private DataInputStream in = null;
     private DataOutputStream out = null;
-    private String message = null;
-    private String command = null;
+    private String message;
+    private String command;
+
+    //Constructor
+    public Server(int port){
+
+        try{
+
+            //After a successful initialization, this completes the server connection
+            this.serverSocket = new ServerSocket(port);
+            this.socket = serverSocket.accept();
+            this.in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
+            this.out = new DataOutputStream(socket.getOutputStream());
+            this.message = "";
+            this.command = "";
+            //A message to the server console to track each instance
+            System.out.println("A new server instance was created on port: " + port);
+
+        }
+        catch(IOException e){
+
+            System.out.println(e);
+
+        }
+
+    }
+
+    /**
+    * @author Marcus Nix
+    * @param port The port for the socket connecttion
+    * 
+    * This method creates a new server instance by connecting to a newly define port
+    */
+    public static Server initialize(int port){
+
+        Server server = new Server(port);
+
+        return server;
+
+    }
+
+
+    //Setter for the client message
+    public void setMessage(String message){
+        this.message = message;
+    }
+
+    //Setter for the console command
+    public void setCommand(String command){
+        this.command = command;
+    }
+
+
 
     @SuppressWarnings({"deprecation", "ConvertToTryWithResources"})
     private void sendData(String command, DataInputStream in, DataOutputStream out){
@@ -18,8 +70,6 @@ public class Server{
         //System.out.println("Testing Case: " + message);
 
         try{
-
-            command = in.readUTF();
             //System.out.println(command + " command received.");
             long start = System.currentTimeMillis();
             Process p = Runtime.getRuntime().exec(command);
@@ -68,46 +118,14 @@ public class Server{
 
     }
 
-    private synchronized void verifyRequest(String message, String command, DataInputStream in, DataOutputStream out){
+    public synchronized void verifyRequest(String message, String command, DataInputStream in, DataOutputStream out){
 
-                    while(!message.equals("7")){
-
-                try{
-                    message = in.readUTF();
-
-                    switch(message){
-
-                        case "1":
-                            sendData(command, in, out);
-                            break;
-                        case "2":
-                            sendData(command, in, out);
-                            break;
-                        case "3":
-                            sendData(command, in, out);
-                            break;
-                        case "4":
-                            sendData(command, in, out);
-                            break;
-                        case "5":
-                            sendData(command, in, out);
-                            break;
-                        case "6":
-                            sendData(command, in, out);
-                            break;
-                        case "7":
-                            continue;
-                        default:
-                            System.out.println("Invalid Input " + message + " From client, terminating.");
-                            message = "7";
-                        }
-                }
-                catch(IOException e){
-                    message = "7";
-                }
-                
+            if(Integer.parseInt(message) >= 1 || Integer.parseInt(message) <= 6){
+                sendData(command, in, out);
             }
-
+            else if(!message.equals("7")){
+                System.out.println("Invalid Input " + message + " From client, terminating.");
+            }
     }
 
     public void disconnect(Server server, int port){
@@ -126,49 +144,6 @@ public class Server{
         
     }
 
-    //Constructor
-    public Server(int port){
-
-        try{
-
-            //After a successful initialization, this completes the server connection
-            this.serverSocket = new ServerSocket(port);
-            this.socket = serverSocket.accept();
-            this.in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
-            this.out = new DataOutputStream(socket.getOutputStream());
-
-            //A message to the server console to track each instance
-            System.out.println("A new server instance was created on port: " + port);
-
-            //The message is the client choice, the command is the Linux/Unix command desired
-            this.message = "";
-            this.command = "";
-
-
-            verifyRequest(this.message, this.command, this.in, this.out);
-
-
-            //After the server has completed the command, end connection
-            System.out.println("Ending client connection from port: " + port);
-            socket.close();
-            in.close();
-            out.close();
-        }
-        catch(IOException e){
-
-            System.out.println(e);
-
-        }
-
-    }
-
-    public static Server initialize(int port){
-
-        Server server = new Server(port);
-
-        return server;
-
-    }
 
     @SuppressWarnings("ConvertToTryWithResources")
     public static void main(String args[]){
@@ -189,7 +164,6 @@ public class Server{
 
                 System.out.println("Connecting To Port: " + port);
 
-                @SuppressWarnings("unused")
                 Server server = Server.initialize(port); //Sets up the server connection
 
                 valid = true;
