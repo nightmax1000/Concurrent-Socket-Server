@@ -1,6 +1,6 @@
 import java.io.*;
 import java.net.*;
-import java.util.Scanner;
+import java.util.*;
 //import java.lang.*;
 
 @SuppressWarnings("unused")
@@ -12,6 +12,7 @@ public class Server{
     private DataOutputStream out = null;
     private String message;
     private String command;
+    private int numRequests;
 
     //Constructor
     public Server(int port){
@@ -25,8 +26,9 @@ public class Server{
             this.out = new DataOutputStream(socket.getOutputStream());
             this.message = "";
             this.command = "";
+            this.numRequests = 0;
             //A message to the server console to track each instance
-            System.out.println("A new server instance was created on port: " + port);
+            System.out.println("Connection Established");
 
         }
         catch(IOException e){
@@ -39,9 +41,9 @@ public class Server{
 
     /**
     * @author Marcus Nix
-    * @param port The port for the socket connecttion
+    * @param port The port for the socket connection
     * 
-    * This method creates a new server instance by connecting to a newly define port
+    * This method starts the server by connecting it to a newly define port
     */
     public static Server initialize(int port){
 
@@ -118,14 +120,38 @@ public class Server{
 
     }
 
-    public synchronized void verifyRequest(String message, String command, DataInputStream in, DataOutputStream out){
+    public synchronized void verifyRequest(int numRequests, String message, String command, DataInputStream in, DataOutputStream out){
 
-            if(Integer.parseInt(message) >= 1 || Integer.parseInt(message) <= 6){
-                sendData(command, in, out);
+        if(Integer.parseInt(message) >= 1 || Integer.parseInt(message) <= 6){
+
+            ArrayList<Thread> threads = new ArrayList<>();
+
+            for(int i = 0; i < numRequests; i++){
+                //Create server instances and add to the ArrayList
             }
-            else if(!message.equals("7")){
-                System.out.println("Invalid Input " + message + " From client, terminating.");
+
+            for(int i = 0; i < numRequests; i++){
+                //Use this snippet to start a new ServerTask
+                //threads.get(i).start();
             }
+
+            /* Get the threads to reconnect with each other
+            for(int i = 0; i < numRequests; i++){
+                try{
+                    threads.get(i).join();
+                }
+                catch(InterruptedException e){}
+            
+            }
+            */
+
+
+
+            sendData(command, in, out);
+        }
+        else if(!message.equals("7")){
+            System.out.println("Invalid Input " + message + " From client, terminating.");
+        }
     }
 
     public void disconnect(Server server, int port){
@@ -166,7 +192,21 @@ public class Server{
 
                 Server server = Server.initialize(port); //Sets up the server connection
 
+                try{
+
+                    while(!server.message.equals("7")){
+                        server.setMessage(server.in.readUTF());
+                        int numRequests = Integer.parseInt(server.in.readUTF());
+                        System.out.println("Test-> Client Chose Option: " + server.message + "\n" + "NumRequests: " + numRequests);
+                    }
+
+                }
+                catch(EOFException eof){System.out.println("End of datastream reached");}
+                catch(IOException e){System.out.println("Error thrown in Server.java.main: " + e);}
+                
+                
                 valid = true;
+                server.disconnect(server, port);
 
             }
             catch(IllegalArgumentException e){
@@ -178,8 +218,6 @@ public class Server{
 
         }
         
-
-
         userInput.close();
         
     }

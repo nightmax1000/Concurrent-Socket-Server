@@ -10,19 +10,15 @@ public class Client {
     private DataInputStream in;
     private DataInputStream serverIn;
     private DataOutputStream out;
-    private String ip;
-    private int port;
     static Scanner userInput = new Scanner(System.in);
 
-    //constructor
+    //Constructor
     public Client(String address, int port)
     {
         // Establish a connection
         try {
-            socket = new Socket(address, port);
+            this.socket = new Socket(address, port);
             System.out.println("Connected\n");
-            this.ip = address;
-            this.port = port;
 
             // Takes input from terminal
             this.in = new DataInputStream(System.in);
@@ -62,9 +58,6 @@ public class Client {
         }
     }
 
-    public String getIp(){return this.ip;}
-
-    public int getPort(){return this.port;}
 
     public static void printToTerminal(String message){
 
@@ -83,7 +76,7 @@ public class Client {
                 System.out.println("1) Date and Time\n2) Uptime\n3) Memory Use\n4) Netstat\n5) Current Users\n6) Running Process\n7) Exit Program");
                 System.out.print("Selection: ");
                 message = in.readLine();
-                //out.writeUTF(message); // writes the selection to the UTF stream
+                out.writeUTF(message); //Sends the server the notification of which menu option was chosen
                 System.out.println();
                 int numRequests;
                 String command;
@@ -94,10 +87,11 @@ public class Client {
                         //System.out.println("Testing Case: " + message);
                         command = "date";
                         numRequests = request();
+                        out.writeUTF(Integer.toString(numRequests)); //Tells the server the number of requests being made by the client
 
                         //System.out.println("Sending " + numRequests + " requests to the server.\n");
 
-                        getData(client, message, command, in, serverIn, out, numRequests);
+                        //getData(client, message, command, in, serverIn, out, numRequests);
 
                         message = "-1";
 
@@ -106,10 +100,11 @@ public class Client {
                         //System.out.println("\nTesting Case: " + message + "\n");
                         command = "uptime -p";
                         numRequests = request();
+                        out.writeUTF(Integer.toString(numRequests)); //Tells the server the number of requests being made by the client
 
                         //System.out.println("Sending " + numRequests + " requests to the server.\n");
 
-                        getData(client, message, command, in, serverIn, out, numRequests);
+                        //getData(client, message, command, in, serverIn, out, numRequests);
 
                         message = "-1";
 
@@ -118,10 +113,11 @@ public class Client {
                         //System.out.println("\nTesting Case: " + message + "\n");
                         command = "cat /proc/meminfo";
                         numRequests = request();
+                        out.writeUTF(Integer.toString(numRequests)); //Tells the server the number of requests being made by the client
 
                         //System.out.println("Sending " + numRequests + " requests to the server.\n");
 
-                        getData(client, message, command, in, serverIn, out, numRequests);
+                        //getData(client, message, command, in, serverIn, out, numRequests);
 
                         message = "-1";
 
@@ -131,10 +127,11 @@ public class Client {
                         //System.out.println("\nTesting Case: " + message + "\n");
                         command = "netstat -atun";
                         numRequests = request();
+                        out.writeUTF(Integer.toString(numRequests)); //Tells the server the number of requests being made by the client
 
                         //System.out.println("Sending " + numRequests + " requests to the server.\n");
 
-                        getData(client, message, command, in, serverIn, out, numRequests);
+                        //getData(client, message, command, in, serverIn, out, numRequests);
 
                         message = "-1";
 
@@ -143,10 +140,11 @@ public class Client {
                         //System.out.println("\nTesting Case: " + message + "\n");
                         command = "users";
                         numRequests = request();
+                        out.writeUTF(Integer.toString(numRequests)); //Tells the server the number of requests being made by the client
 
                         //System.out.println("Sending " + numRequests + " requests to the server.\n");
 
-                        getData(client, message, command, in, serverIn, out, numRequests);
+                        //getData(client, message, command, in, serverIn, out, numRequests);
 
                         message = "-1";
 
@@ -154,10 +152,11 @@ public class Client {
                     case "6":
                         command = "ps -e";
                         numRequests = request();
+                        out.writeUTF(Integer.toString(numRequests)); //Tells the server the number of requests being made by the client
 
                         //System.out.println("Sending " + numRequests + " requests to the server.\n");
 
-                        getData(client, message, command, in, serverIn, out, numRequests);
+                        //getData(client, message, command, in, serverIn, out, numRequests);
 
                         message = "-1";
                         break;
@@ -182,7 +181,7 @@ public class Client {
         // This method starts the number of threads indicated by numRequests,
         // then each thread calls to the server based on the operation chosen by the client. 
         ArrayList<Thread> threads = new ArrayList<>();
-        DataTask runnable = new DataTask(client.getIp(), client.getPort(), message, command, in, serverIn, out);
+        ClientTask runnable = new ClientTask(message, command, in, serverIn, out);
 
   
         for(int i = 0; i < numRequests; i++){

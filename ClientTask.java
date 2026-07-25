@@ -1,7 +1,7 @@
 import java.io.*;
 
 @SuppressWarnings("unused")
-public class DataTask implements Runnable{
+public class ClientTask implements Runnable{
 
     private int numDone = 0;
     private final DataInputStream in;
@@ -12,12 +12,9 @@ public class DataTask implements Runnable{
     private String result;
     private String individualTime;
     private String total;
-    private final String clientIp; //The client's address
-    private final Server server = null; // FIX ME: Currently unused, should hold the new server instance
-    private final int port;
-
  
-    DataTask(String address, int port, String message, String command, DataInputStream in, DataInputStream serverIn, DataOutputStream out){
+    //Constructor
+    ClientTask(String message, String command, DataInputStream in, DataInputStream serverIn, DataOutputStream out){
 
         this.total = "0";
         this.message = message;
@@ -25,9 +22,6 @@ public class DataTask implements Runnable{
         this.serverIn = serverIn;
         this.out = out;
         this.command = command;
-        this.clientIp = address;
-        this.port = port + 1;
-        //this.server = Server.initialize(this.port);
 
     }
 
@@ -46,13 +40,13 @@ public class DataTask implements Runnable{
     public synchronized void run(){
 
         try{
-
-            out.writeUTF(message);
-            out.writeUTF(command);// Tells the server which command this method wants
+            out.writeUTF(command);// Tells the server which command to execute
             this.result = this.serverIn.readUTF();// Gets the command result from the server
             this.individualTime = this.serverIn.readUTF();// Gets the turnaround time from the server
             this.numDone++;
-            writeToClient(this.result, this.individualTime);
+            writeToClient(this.result, this.individualTime);//Writes the client output
+
+            //Turnaround math
             int temp1 = Integer.parseInt(total);
             int temp2 = Integer.parseInt(individualTime);
             temp1 = temp1 + temp2;
@@ -62,6 +56,7 @@ public class DataTask implements Runnable{
 
         }
         catch(IOException e){
+            System.out.println("There was an error completing the client task: " + e);
         }
         
 
