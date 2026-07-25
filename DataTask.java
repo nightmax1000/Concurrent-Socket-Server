@@ -12,9 +12,12 @@ public class DataTask implements Runnable{
     private String result;
     private String individualTime;
     private String total;
+    private final String clientIp; //The client's address
+    private final Server server = null; // FIX ME: Currently unused, should hold the new server instance
+    private final int port;
 
  
-    DataTask(String message, String command, DataInputStream in, DataInputStream serverIn, DataOutputStream out){
+    DataTask(String address, int port, String message, String command, DataInputStream in, DataInputStream serverIn, DataOutputStream out){
 
         this.total = "0";
         this.message = message;
@@ -22,6 +25,9 @@ public class DataTask implements Runnable{
         this.serverIn = serverIn;
         this.out = out;
         this.command = command;
+        this.clientIp = address;
+        this.port = port + 1;
+        //this.server = Server.initialize(this.port);
 
     }
 

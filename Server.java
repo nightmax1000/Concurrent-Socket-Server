@@ -110,6 +110,23 @@ public class Server{
 
     }
 
+    public void disconnect(Server server, int port){
+
+        try{
+            server.socket.close();
+            server.in.close();
+            server.out.close();
+
+            System.out.println("Server instance disconnected from port: " + port);
+
+        }
+        catch(IOException e){
+            System.out.println(e);
+        }
+        
+    }
+
+    //Constructor
     public Server(int port){
 
         try{
@@ -127,15 +144,15 @@ public class Server{
             this.message = "";
             this.command = "";
 
-            //This method gathers the client command selection, and verifies that the request can be handled
+
             verifyRequest(this.message, this.command, this.in, this.out);
+
 
             //After the server has completed the command, end connection
             System.out.println("Ending client connection from port: " + port);
             socket.close();
             in.close();
             out.close();
-
         }
         catch(IOException e){
 
@@ -179,7 +196,7 @@ public class Server{
 
             }
             catch(IllegalArgumentException e){
-                System.out.println("Illegal Port entered, please specify a valid port.\n");
+                System.out.println("Illegal or ineligible port entered, please specify a valid port.\n");
                 valid = false;
                 userInput.reset();
             }
