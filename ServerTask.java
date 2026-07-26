@@ -20,7 +20,7 @@ public class ServerTask implements Runnable{
     public synchronized void run(){
 
         try{
-            System.out.println(command + " command received.");
+            //System.out.println(command + " command received.");
             long start = System.currentTimeMillis();
             Process p = Runtime.getRuntime().exec(this.command);
             long end = System.currentTimeMillis();

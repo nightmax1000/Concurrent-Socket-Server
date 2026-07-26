@@ -17,7 +17,6 @@ public class Client {
     {
         //Establish a connection
         try {
-
             //Variable Declarations
             this.socket = new Socket(address, port);//Establishes the socket connection
             System.out.println("Connected\n");
@@ -68,7 +67,6 @@ public class Client {
                 System.out.println("1) Date and Time\n2) Uptime\n3) Memory Use\n4) Netstat\n5) Current Users\n6) Running Process\n7) Exit Program");
                 System.out.print("Selection: ");
                 message = client.in.readLine();
-                client.out.writeUTF(message); //Sends the server the notification of which menu option was chosen
                 System.out.println();
                 int numRequests;
                 String command;
@@ -77,9 +75,13 @@ public class Client {
 
                     case "1":
                         //System.out.println("Testing Case: " + message);
+                        client.out.writeUTF(message); //Sends the server the notification of which menu option was chosen
                         command = "date";
                         numRequests = request();
-                        client.out.writeUTF(Integer.toString(numRequests)); //Tells the server the number of requests being made by the client
+                        String requestString = Integer.toString(numRequests);
+
+
+                        client.out.writeUTF(requestString); //Tells the server the number of requests being made by the client
 
                         //System.out.println("Sending " + numRequests + " requests to the server.\n");
 
@@ -212,6 +214,7 @@ public class Client {
 
             try{
                 numSessions = userInput.nextInt();
+                userInput.nextLine();
                 System.out.println();
 
                 if(numSessions == 1 
@@ -248,7 +251,6 @@ public class Client {
         userInput.nextLine();
 
         // Sends input to the client class, connecting to the server
-        @SuppressWarnings("unused")
         Client client = new Client(address, port);
 
         menu(client);//Prompts user input recursively
