@@ -109,10 +109,10 @@ public class Server{
 
     public boolean verifyRequest(Server server, int numRequests, String message){
 
-        System.out.println("Test -> Client Chose Option: " + server.message + " " + "NumRequests: " + server.numRequests);
+        //System.out.println("Test -> Client Chose Option: " + server.message + " " + "NumRequests: " + server.numRequests);
 
         if((message.contains("0-9") && !message.contains("A-Za-z")) || Integer.parseInt(message) >= 1 || Integer.parseInt(message) <= 6){
-            System.out.println("Client option " + message + " verified");
+            //System.out.println("Client option " + message + " verified");
             return true;
         }
         else{
@@ -121,7 +121,6 @@ public class Server{
                 server.numRequests = Integer.parseInt(server.in.readUTF());
             }
             catch(IOException e){
-                System.out.println("The client option came in incorrect but the program was unable to resolve itself. Try again.");
             }
         }
 
@@ -156,7 +155,7 @@ public class Server{
 
                 if(message.matches("[1-7]")){
 
-                    System.out.println("verified");
+                    //System.out.println("verified");
 
                     server.setMessage(message);
                     server.numRequests = Integer.parseInt(numRequests);
@@ -165,7 +164,7 @@ public class Server{
 
                     if(ready){
                         server.setCommand(server.in.readUTF());
-                        System.out.println("Ready to transmit request: " + server.getCommand());
+                        //System.out.println("Ready to transmit request: " + server.getCommand());
                         Server.startTask(server, server.numRequests);
                     }
 

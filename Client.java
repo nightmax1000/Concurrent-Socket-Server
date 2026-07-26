@@ -58,6 +58,9 @@ public class Client {
     public static void menu(Client client){
 
         String message = "";
+        int numRequests;
+        String command;
+        String requestString;
 
         // Keep reading until "7" is input
         while (!message.equals("7")) {
@@ -68,8 +71,7 @@ public class Client {
                 System.out.print("Selection: ");
                 message = client.in.readLine();
                 System.out.println();
-                int numRequests;
-                String command;
+                
 
                 switch(message){
 
@@ -78,79 +80,59 @@ public class Client {
                         client.out.writeUTF(message); //Sends the server the notification of which menu option was chosen
                         command = "date";
                         numRequests = request();
-                        String requestString = Integer.toString(numRequests);
-
-
+                        requestString = Integer.toString(numRequests);
                         client.out.writeUTF(requestString); //Tells the server the number of requests being made by the client
-
-                        //System.out.println("Sending " + numRequests + " requests to the server.\n");
-
                         getData(message, command, client.in, client.serverIn, client.out, numRequests);
 
                         message = "-1";
-
                         break;
                     case "2":
-                        //System.out.println("\nTesting Case: " + message + "\n");
+                        client.out.writeUTF(message); //Sends the server the notification of which menu option was chosen
                         command = "uptime -p";
                         numRequests = request();
-                        client.out.writeUTF(Integer.toString(numRequests)); //Tells the server the number of requests being made by the client
-
-                        //System.out.println("Sending " + numRequests + " requests to the server.\n");
-
-                        //getData(client, message, command, in, serverIn, out, numRequests);
+                        requestString = Integer.toString(numRequests);
+                        client.out.writeUTF(requestString);
+                        getData(message, command, client.in, client.serverIn, client.out, numRequests);
 
                         message = "-1";
-
                         break;
                     case "3":
-                        //System.out.println("\nTesting Case: " + message + "\n");
+                        client.out.writeUTF(message); //Sends the server the notification of which menu option was chosen
                         command = "cat /proc/meminfo";
                         numRequests = request();
-                        client.out.writeUTF(Integer.toString(numRequests)); //Tells the server the number of requests being made by the client
-
-                        //System.out.println("Sending " + numRequests + " requests to the server.\n");
-
-                        //getData(client, message, command, in, serverIn, out, numRequests);
+                        requestString = Integer.toString(numRequests);
+                        client.out.writeUTF(requestString);
+                        getData(message, command, client.in, client.serverIn, client.out, numRequests);
 
                         message = "-1";
-
-
                         break;
                     case "4":
-                        //System.out.println("\nTesting Case: " + message + "\n");
+                        client.out.writeUTF(message); //Sends the server the notification of which menu option was chosen
                         command = "netstat -atun";
                         numRequests = request();
-                        client.out.writeUTF(Integer.toString(numRequests)); //Tells the server the number of requests being made by the client
-
-                        //System.out.println("Sending " + numRequests + " requests to the server.\n");
-
-                        //getData(client, message, command, in, serverIn, out, numRequests);
+                        requestString = Integer.toString(numRequests);
+                        client.out.writeUTF(requestString);
+                        getData(message, command, client.in, client.serverIn, client.out, numRequests);
 
                         message = "-1";
-
                         break;
                     case "5":
-                        //System.out.println("\nTesting Case: " + message + "\n");
+                        client.out.writeUTF(message);
                         command = "users";
                         numRequests = request();
-                        client.out.writeUTF(Integer.toString(numRequests)); //Tells the server the number of requests being made by the client
-
-                        //System.out.println("Sending " + numRequests + " requests to the server.\n");
-
-                        //getData(client, message, command, in, serverIn, out, numRequests);
+                        requestString = Integer.toString(numRequests);
+                        client.out.writeUTF(requestString);
+                        getData(message, command, client.in, client.serverIn, client.out, numRequests);
 
                         message = "-1";
-
                         break;
                     case "6":
+                        client.out.writeUTF(message);
                         command = "ps -e";
                         numRequests = request();
-                        client.out.writeUTF(Integer.toString(numRequests)); //Tells the server the number of requests being made by the client
-
-                        //System.out.println("Sending " + numRequests + " requests to the server.\n");
-
-                        //getData(client, message, command, in, serverIn, out, numRequests);
+                        requestString = Integer.toString(numRequests);
+                        client.out.writeUTF(requestString);
+                        getData(message, command, client.in, client.serverIn, client.out, numRequests);
 
                         message = "-1";
                         break;
