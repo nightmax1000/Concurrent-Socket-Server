@@ -15,49 +15,39 @@ public class Client {
     //Constructor
     public Client(String address, int port)
     {
-        // Establish a connection
+        //Establish a connection
         try {
-            this.socket = new Socket(address, port);
+
+            //Variable Declarations
+            this.socket = new Socket(address, port);//Establishes the socket connection
             System.out.println("Connected\n");
-
-            // Takes input from terminal
-            this.in = new DataInputStream(System.in);
-
-            // Takes input from Server
-            this.serverIn = new DataInputStream(socket.getInputStream());
-
-
-            // Sends output to the socket
-            this.out = new DataOutputStream(socket.getOutputStream());
+            this.in = new DataInputStream(System.in);//Takes input from terminal
+            this.serverIn = new DataInputStream(socket.getInputStream());//Takes input from Server
+            this.out = new DataOutputStream(socket.getOutputStream());//Sends output to the socket
         }
         catch (UnknownHostException e) {
             System.out.println(e);
-            return;
         }
         catch (IOException e) {
             System.out.println(e);
-            return;
-        }
-
-        // String to read message from input
-        String message = "";
-
-        menu(this, in, serverIn, out, message);
-
-        System.out.println("\nEnding Program\n");
-
-        // Close the connection
-        try {
-            in.close();
-            serverIn.close();
-            out.close();
-            socket.close();
-        }
-        catch (IOException i) {
-            System.out.println("Error thrown in the client constructor: " + i);
         }
     }
 
+    public static void disconnect(Client client){
+        // Close the connection
+        try {
+            client.in.close();
+            client.serverIn.close();
+            client.out.close();
+            client.socket.close();
+
+            System.out.println("\nEnding Program\n");
+        }
+        catch (IOException i) {
+            System.out.println("Error thrown in the client disconnect method: " + i);
+        }
+
+    }
 
     public static void printToTerminal(String message){
 
@@ -66,7 +56,9 @@ public class Client {
     }
 
     // Recursively calls the menu which prompts user input
-    static void menu(Client client, DataInputStream in, DataInputStream serverIn, DataOutputStream out, String message){
+    public static void menu(Client client){
+
+        String message = "";
 
         // Keep reading until "7" is input
         while (!message.equals("7")) {
@@ -75,8 +67,8 @@ public class Client {
                 System.out.println("Please Enter Number Corresponding To Desired Command");
                 System.out.println("1) Date and Time\n2) Uptime\n3) Memory Use\n4) Netstat\n5) Current Users\n6) Running Process\n7) Exit Program");
                 System.out.print("Selection: ");
-                message = in.readLine();
-                out.writeUTF(message); //Sends the server the notification of which menu option was chosen
+                message = client.in.readLine();
+                client.out.writeUTF(message); //Sends the server the notification of which menu option was chosen
                 System.out.println();
                 int numRequests;
                 String command;
@@ -87,11 +79,11 @@ public class Client {
                         //System.out.println("Testing Case: " + message);
                         command = "date";
                         numRequests = request();
-                        out.writeUTF(Integer.toString(numRequests)); //Tells the server the number of requests being made by the client
+                        client.out.writeUTF(Integer.toString(numRequests)); //Tells the server the number of requests being made by the client
 
                         //System.out.println("Sending " + numRequests + " requests to the server.\n");
 
-                        //getData(client, message, command, in, serverIn, out, numRequests);
+                        getData(message, command, client.in, client.serverIn, client.out, numRequests);
 
                         message = "-1";
 
@@ -100,7 +92,7 @@ public class Client {
                         //System.out.println("\nTesting Case: " + message + "\n");
                         command = "uptime -p";
                         numRequests = request();
-                        out.writeUTF(Integer.toString(numRequests)); //Tells the server the number of requests being made by the client
+                        client.out.writeUTF(Integer.toString(numRequests)); //Tells the server the number of requests being made by the client
 
                         //System.out.println("Sending " + numRequests + " requests to the server.\n");
 
@@ -113,7 +105,7 @@ public class Client {
                         //System.out.println("\nTesting Case: " + message + "\n");
                         command = "cat /proc/meminfo";
                         numRequests = request();
-                        out.writeUTF(Integer.toString(numRequests)); //Tells the server the number of requests being made by the client
+                        client.out.writeUTF(Integer.toString(numRequests)); //Tells the server the number of requests being made by the client
 
                         //System.out.println("Sending " + numRequests + " requests to the server.\n");
 
@@ -127,7 +119,7 @@ public class Client {
                         //System.out.println("\nTesting Case: " + message + "\n");
                         command = "netstat -atun";
                         numRequests = request();
-                        out.writeUTF(Integer.toString(numRequests)); //Tells the server the number of requests being made by the client
+                        client.out.writeUTF(Integer.toString(numRequests)); //Tells the server the number of requests being made by the client
 
                         //System.out.println("Sending " + numRequests + " requests to the server.\n");
 
@@ -140,7 +132,7 @@ public class Client {
                         //System.out.println("\nTesting Case: " + message + "\n");
                         command = "users";
                         numRequests = request();
-                        out.writeUTF(Integer.toString(numRequests)); //Tells the server the number of requests being made by the client
+                        client.out.writeUTF(Integer.toString(numRequests)); //Tells the server the number of requests being made by the client
 
                         //System.out.println("Sending " + numRequests + " requests to the server.\n");
 
@@ -152,7 +144,7 @@ public class Client {
                     case "6":
                         command = "ps -e";
                         numRequests = request();
-                        out.writeUTF(Integer.toString(numRequests)); //Tells the server the number of requests being made by the client
+                        client.out.writeUTF(Integer.toString(numRequests)); //Tells the server the number of requests being made by the client
 
                         //System.out.println("Sending " + numRequests + " requests to the server.\n");
 
@@ -176,7 +168,7 @@ public class Client {
 
     }
 
-    static void getData(Client client, String message, String command, DataInputStream in, DataInputStream serverIn, DataOutputStream out, int numRequests){
+    static void getData(String message, String command, DataInputStream in, DataInputStream serverIn, DataOutputStream out, int numRequests){
 
         // This method starts the number of threads indicated by numRequests,
         // then each thread calls to the server based on the operation chosen by the client. 
@@ -219,10 +211,8 @@ public class Client {
         while(true){
 
             try{
-
                 numSessions = userInput.nextInt();
                 System.out.println();
-                
 
                 if(numSessions == 1 
                     || numSessions == 5 
@@ -237,12 +227,9 @@ public class Client {
                 }
             }
             catch(InputMismatchException e){
-
                 System.out.println("Invalid input, please enter an integer.");
-
             }
         }
-
         return numSessions;
     }
 
@@ -251,8 +238,6 @@ public class Client {
         // Prompt user for Network Address and store it
         System.out.println("Welcome to the client program, User." + '\n');
         System.out.print("Please Enter Server Network Address: ");
-
-        
 
         // Captures the address given by the user
         String address = userInput.nextLine();
@@ -265,6 +250,10 @@ public class Client {
         // Sends input to the client class, connecting to the server
         @SuppressWarnings("unused")
         Client client = new Client(address, port);
+
+        menu(client);//Prompts user input recursively
+
+        disconnect(client);//Closes all client connections to prevent data leaks
 
         userInput.close();
 

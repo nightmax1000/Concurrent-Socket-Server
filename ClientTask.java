@@ -52,8 +52,6 @@ public class ClientTask implements Runnable{
             temp1 = temp1 + temp2;
             String addedTime = Integer.toString(temp1);
             total = addedTime;
-
-
         }
         catch(IOException e){
             System.out.println("There was an error completing the client task: " + e);

@@ -53,10 +53,21 @@ public class Server{
 
     }
 
+    public DataInputStream getInput(){
+        return this.in;
+    }
+
+    public DataOutputStream getOutput(){
+        return this.out;
+    }
 
     //Setter for the client message
     public void setMessage(String message){
         this.message = message;
+    }
+
+    public String getMessage(){
+        return this.message;
     }
 
     //Setter for the console command
@@ -64,97 +75,53 @@ public class Server{
         this.command = command;
     }
 
+    public String getCommand(){
+        return this.command;
+    }
 
+    public static void startTask(Server server, int numRequests){
 
-    @SuppressWarnings({"deprecation", "ConvertToTryWithResources"})
-    private void sendData(String command, DataInputStream in, DataOutputStream out){
+        ArrayList<Thread> threads = new ArrayList<>();
+        ServerTask runnable = new ServerTask(server);
 
-        //System.out.println("Testing Case: " + message);
-
-        try{
-            //System.out.println(command + " command received.");
-            long start = System.currentTimeMillis();
-            Process p = Runtime.getRuntime().exec(command);
-            long end = System.currentTimeMillis();
-            String total = String.valueOf(end - start);
-                    
-
-            BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
-            BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-
-
-            String s;
-            String result = "";
-            while((s = stdInput.readLine()) != null){
-
-                result = result.concat("\n" + s);
-            }
-
-            if(result != null){
-                //System.out.println(result + " was the command executed");
-                out.writeUTF(result);
-                //System.out.println(total + "ms was the execution time.");
-                out.writeUTF(total);
-                result = "";
-            }
-                        
-
-            while((s = stdError.readLine()) != null){
-
-                result = result.concat(s);
-            }
-
-            if(!result.equals("")){
-                System.out.println("Command Error: " + result);
-                System.out.println("Client request failed.");
-            }
-            else{System.out.println("Client request complete");}
-
-            stdInput.close();
-            stdError.close();
-
+        for(int i = 0; i < numRequests; i++){
+            Thread t = new Thread(runnable);
+            threads.add(t);
         }
-        catch(IOException e){}
-        
-        
+
+        for(int i = 0; i < numRequests; i++){
+            //Use this snippet to start a new ServerTask
+            threads.get(i).start();
+        }
+
+        // Get the threads to reconnect with each other
+        for(int i = 0; i < numRequests; i++){
+            try{
+                threads.get(i).join();
+            }
+            catch(InterruptedException e){}       
+        }
+
+
+
+        //server.sendData(server.command, server.in, server.out);
 
     }
 
-    public synchronized void verifyRequest(int numRequests, String message, String command, DataInputStream in, DataOutputStream out){
+    public synchronized boolean verifyRequest(int numRequests, String message){
 
         if(Integer.parseInt(message) >= 1 || Integer.parseInt(message) <= 6){
-
-            ArrayList<Thread> threads = new ArrayList<>();
-
-            for(int i = 0; i < numRequests; i++){
-                //Create server instances and add to the ArrayList
-            }
-
-            for(int i = 0; i < numRequests; i++){
-                //Use this snippet to start a new ServerTask
-                //threads.get(i).start();
-            }
-
-            /* Get the threads to reconnect with each other
-            for(int i = 0; i < numRequests; i++){
-                try{
-                    threads.get(i).join();
-                }
-                catch(InterruptedException e){}
-            
-            }
-            */
-
-
-
-            sendData(command, in, out);
+            System.out.println("Client option " + message + " verified");
+            return true;
         }
         else if(!message.equals("7")){
             System.out.println("Invalid Input " + message + " From client, terminating.");
         }
+
+        return false;
     }
 
-    public void disconnect(Server server, int port){
+    public static void disconnect(Server server, int port){
 
         try{
             server.socket.close();
@@ -170,6 +137,26 @@ public class Server{
         
     }
 
+    public static void menu(Server server){
+        try{
+            while(!server.message.equals("7")){
+                server.setMessage(server.in.readUTF());
+                int numRequests = Integer.parseInt(server.in.readUTF());
+                System.out.println("Test -> Client Chose Option: " + server.message + "\n" + "NumRequests: " + numRequests);
+
+                boolean ready = server.verifyRequest(numRequests, server.message);//Ensures that the client sends valid request
+
+                if(ready){
+                    server.setCommand(server.in.readUTF());
+                    System.out.println("Ready to transmit request: " + server.getCommand());
+                    Server.startTask(server, numRequests);
+                }
+
+            }
+        }
+        catch(EOFException eof){System.out.println("End of datastream reached");}
+        catch(IOException e){System.out.println("Error thrown in Server.java.main: " + e);}
+    }
 
     @SuppressWarnings("ConvertToTryWithResources")
     public static void main(String args[]){
@@ -192,21 +179,10 @@ public class Server{
 
                 Server server = Server.initialize(port); //Sets up the server connection
 
-                try{
-
-                    while(!server.message.equals("7")){
-                        server.setMessage(server.in.readUTF());
-                        int numRequests = Integer.parseInt(server.in.readUTF());
-                        System.out.println("Test-> Client Chose Option: " + server.message + "\n" + "NumRequests: " + numRequests);
-                    }
-
-                }
-                catch(EOFException eof){System.out.println("End of datastream reached");}
-                catch(IOException e){System.out.println("Error thrown in Server.java.main: " + e);}
-                
+                menu(server);
                 
                 valid = true;
-                server.disconnect(server, port);
+                disconnect(server, port);
 
             }
             catch(IllegalArgumentException e){
